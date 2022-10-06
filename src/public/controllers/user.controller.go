@@ -23,9 +23,8 @@ func NewUserController(userService services.IUserService, logger *log.Logger) *U
 func (c UserController) SignUp(ctx *gin.Context) {
 	var body dtos.SignupDto
 	if err := ctx.ShouldBindJSON(&body); err != nil {
-		c.logger.Println(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"err": "Invalid body input",
+			"err": err.Error(),
 		})
 		return
 	}

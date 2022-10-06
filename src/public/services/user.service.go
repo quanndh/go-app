@@ -9,16 +9,18 @@ import (
 
 type UserService struct {
 	logger         *log.Logger
-	userRepository repositories.UserRepository
+	userRepository repositories.IUserRepository
 }
 
-func NewUserService(logger *log.Logger) IUserService {
+func NewUserService(logger *log.Logger, userRepository repositories.IUserRepository) IUserService {
 	return &UserService{
-		logger: logger,
+		logger:         logger,
+		userRepository: userRepository,
 	}
 }
 
 func (s UserService) CreateUser(data dtos.SignupDto) (*models.User, error) {
+
 	user, err := s.userRepository.CreateUser(data)
 
 	if err != nil {
