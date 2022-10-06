@@ -1,7 +1,9 @@
 package repositories
 
 import (
-	"github.com/quanndh/go-app/public/dtos"
+	"fmt"
+	"github.com/quanndh/go-app/adapter/dtos"
+	"github.com/quanndh/go-app/adapter/models"
 	"gorm.io/gorm"
 )
 
@@ -13,6 +15,17 @@ func NewUserRepository(db *gorm.DB) IUserRepository {
 	return &UserRepository{db: db}
 }
 
-func (ur UserRepository) CreateUser(data dtos.SignupDto) dtos.SignupDto {
-	return data
+func (rp UserRepository) CreateUser(data dtos.SignupDto) (*models.User, error) {
+	fmt.Println(rp.db)
+
+	user := models.User{Username: data.Username, Password: data.Password}
+
+	res := rp.db.Create(&user)
+
+	if res.Error != nil {
+		return nil, res.Error
+	}
+
+	return &user, nil
+
 }
