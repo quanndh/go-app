@@ -6,5 +6,6 @@ import (
 )
 
 func main() {
+
 	fx.New(fx.Options(boostrap.All()...)).Run()
 }

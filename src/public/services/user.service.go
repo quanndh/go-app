@@ -1,17 +1,29 @@
 package services
 
-import "log"
+import (
+	"github.com/quanndh/go-app/adapter/dtos"
+	"github.com/quanndh/go-app/adapter/models"
+	"github.com/quanndh/go-app/adapter/repositories"
+	"log"
+)
 
 type UserService struct {
-	logger *log.Logger
+	logger         *log.Logger
+	userRepository repositories.UserRepository
 }
 
-func NewUserService(logger *log.Logger) *UserService {
+func NewUserService(logger *log.Logger) IUserService {
 	return &UserService{
 		logger: logger,
 	}
 }
 
-func (s UserService) Test() int {
-	return 10
+func (s UserService) CreateUser(data dtos.SignupDto) (*models.User, error) {
+	user, err := s.userRepository.CreateUser(data)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return user, err
 }

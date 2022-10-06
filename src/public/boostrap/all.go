@@ -2,6 +2,8 @@ package boostrap
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/quanndh/go-app/adapter/db"
+	"github.com/quanndh/go-app/adapter/repositories"
 	"github.com/quanndh/go-app/public/controllers"
 	"github.com/quanndh/go-app/public/router"
 	"github.com/quanndh/go-app/public/services"
@@ -18,6 +20,13 @@ func NewLogger() *log.Logger {
 func All() []fx.Option {
 	return []fx.Option{
 		fx.Provide(NewLogger),
+
+		fx.Provide(db.ConnectDB),
+
+		// Provide port's implements
+		fx.Provide(repositories.NewUserRepository),
+
+		// Provide use cases
 
 		// Provide services
 		fx.Provide(services.NewUserService),
