@@ -15,7 +15,6 @@ type RegisterRouterIn struct {
 }
 
 func RegisterGinRouters(p RegisterRouterIn) {
-
 	group := p.Engine.Group("/")
 	group.Use(middlewares.MiddlewareCORS())
 
