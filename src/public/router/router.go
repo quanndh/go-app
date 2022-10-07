@@ -21,6 +21,7 @@ func RegisterGinRouters(p RegisterRouterIn) {
 	v1 := group.Group("/v1")
 	api := v1.Group("/api")
 
+	api.POST("/login", p.UserController.Login)
 	api.POST("/users", p.UserController.SignUp)
 
 	err := p.Engine.Run("localhost:8000")

@@ -2,24 +2,35 @@ package services
 
 import (
 	"github.com/quanndh/go-app/adapter/dtos"
-	"github.com/quanndh/go-app/adapter/models"
 	"github.com/quanndh/go-app/adapter/repositories"
+	"github.com/quanndh/go-app/public/resources"
+	"golang.org/x/crypto/bcrypt"
 	"log"
 )
 
 type UserService struct {
 	logger         *log.Logger
 	userRepository repositories.IUserRepository
+	JwtService     IJwtService
 }
 
-func NewUserService(logger *log.Logger, userRepository repositories.IUserRepository) IUserService {
+func NewUserService(logger *log.Logger, userRepository repositories.IUserRepository, jwtService IJwtService) IUserService {
 	return &UserService{
 		logger:         logger,
 		userRepository: userRepository,
+		JwtService:     jwtService,
 	}
 }
 
-func (s UserService) CreateUser(data dtos.SignupDto) (*models.User, error) {
+func (s UserService) CreateUser(data dtos.SignupDto) (*resources.UserResource, error) {
+
+	hashedPassword, errHash := bcrypt.GenerateFromPassword([]byte(data.Password), 12)
+
+	if errHash != nil {
+		return nil, errHash
+	}
+
+	data.Password = string(hashedPassword)
 
 	user, err := s.userRepository.CreateUser(data)
 
@@ -27,5 +38,22 @@ func (s UserService) CreateUser(data dtos.SignupDto) (*models.User, error) {
 		return nil, err
 	}
 
-	return user, err
+	return resources.NewUserResource(user), err
+}
+
+func (s UserService) Login(data dtos.LoginDto) (*resources.LoginResource, error) {
+	user, err := s.userRepository.FindByUsername(data.Username)
+	if err != nil {
+		return nil, err
+	}
+
+	payload := resources.NewUserResource(user)
+
+	token, err1 := s.JwtService.Generate(payload)
+
+	if err1 != nil {
+		return nil, err1
+	}
+
+	return resources.NewLoginResource(user, token), nil
 }

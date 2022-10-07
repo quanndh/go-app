@@ -29,6 +29,7 @@ func All() []fx.Option {
 		// Provide use cases
 
 		// Provide services
+		fx.Provide(services.NewJwtService),
 		fx.Provide(services.NewUserService),
 
 		// Provide controllers, these controllers will be used

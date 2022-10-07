@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/quanndh/go-app/adapter/dtos"
 	"github.com/quanndh/go-app/public/services"
@@ -33,10 +34,32 @@ func (c UserController) SignUp(ctx *gin.Context) {
 
 	if err1 != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"err": err1,
+			"err": err1.Error(),
 		})
+		return
 	}
 
 	ctx.JSON(http.StatusCreated, gin.H{"data": user})
+}
 
+func (c UserController) Login(ctx *gin.Context) {
+	var body dtos.LoginDto
+
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"err": err.Error(),
+		})
+		return
+	}
+
+	data, err1 := c.userService.Login(body)
+	fmt.Println(data, err1)
+	if err1 != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"err": err1.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"data": data})
 }

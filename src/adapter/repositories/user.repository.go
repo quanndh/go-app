@@ -25,5 +25,16 @@ func (rp UserRepository) CreateUser(data dtos.SignupDto) (*models.User, error) {
 	}
 
 	return &user, nil
+}
 
+func (rp UserRepository) FindByUsername(username string) (*models.User, error) {
+	var user models.User
+
+	res := rp.db.First(&user, "username = ?", username)
+
+	if res.Error != nil {
+		return nil, res.Error
+	}
+
+	return &user, nil
 }
