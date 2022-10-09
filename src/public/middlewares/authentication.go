@@ -2,48 +2,44 @@ package middlewares
 
 import (
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/quanndh/go-app/public/services"
 	"net/http"
 	"strings"
 )
 
 const (
 	TokenTypeBasicAuthen = "Basic"
+	TokenBearerAuthen    = "Bearer"
 	AuthorizationHeader  = "Authorization"
 )
 
-func MiddlewareAuthentication(authInfo string) gin.HandlerFunc {
+func MiddlewareAuthentication(jwtService services.IJwtService) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		auth := ctx.Request.Header.Get(AuthorizationHeader)
 		token := strings.SplitN(auth, " ", 2)
 
 		if len(token) != 2 {
-			// TODO Build Error Response
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, "Unauthorized")
 			return
 		}
 
-		switch token[0] {
-		case TokenTypeBasicAuthen:
-			var auth map[string]string
-			err := json.Unmarshal([]byte(authInfo), &auth)
-			if err != nil {
-				ctx.AbortWithStatusJSON(http.StatusUnauthorized, "unmarshal basic data error")
-				return
-			}
-
-			tokens := genBasicAuthenToken(auth)
-			if !checkStringInSlice(token[1], tokens) {
-				ctx.AbortWithStatusJSON(http.StatusUnauthorized, "Unauthorized")
-				return
-			}
-		default:
+		if token[0] != "Bearer" {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, "Unauthorized")
 			return
 		}
+
+		claims, err := jwtService.Verify(token[1])
+
+		if err != nil {
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, "Unauthorized")
+			return
+		}
+
+		ctx.Set("UserId", claims.UserId)
 		ctx.Next()
+
 	}
 }
 

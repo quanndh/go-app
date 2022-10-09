@@ -6,6 +6,11 @@ import (
 	"time"
 )
 
+type UserClaims struct {
+	*jwt.StandardClaims
+	UserId uint `json:"userId"`
+}
+
 type JwtService struct {
 }
 
@@ -26,5 +31,19 @@ func (j JwtService) Generate(payload *resources.UserResource) (string, error) {
 	tokenString, err := token.SignedString(privateKey)
 
 	return tokenString, err
+}
 
+func (j JwtService) Verify(tokenString string) (*UserClaims, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &UserClaims{}, func(token *jwt.Token) (interface{}, error) {
+
+		return []byte("key"), nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	claims := token.Claims.(*UserClaims)
+	
+	return claims, nil
 }

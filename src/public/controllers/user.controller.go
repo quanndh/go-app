@@ -63,3 +63,12 @@ func (c UserController) Login(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, gin.H{"data": data})
 }
+
+func (c UserController) Me(ctx *gin.Context) {
+	userId, exist := ctx.Get("UserId")
+
+	if !exist {
+		return
+	}
+	fmt.Println(userId, "alo")
+}
