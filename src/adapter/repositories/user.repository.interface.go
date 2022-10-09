@@ -8,4 +8,5 @@ import (
 type IUserRepository interface {
 	CreateUser(data dtos.SignupDto) (*models.User, error)
 	FindByUsername(username string) (*models.User, error)
+	FindById(id uint) (*models.User, error)
 }

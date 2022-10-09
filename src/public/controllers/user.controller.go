@@ -24,7 +24,7 @@ func NewUserController(userService services.IUserService, logger *log.Logger) *U
 func (c UserController) SignUp(ctx *gin.Context) {
 	var body dtos.SignupDto
 	if err := ctx.ShouldBindJSON(&body); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"err": err.Error(),
 		})
 		return
@@ -33,7 +33,7 @@ func (c UserController) SignUp(ctx *gin.Context) {
 	user, err1 := c.userService.CreateUser(body)
 
 	if err1 != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"err": err1.Error(),
 		})
 		return
@@ -46,7 +46,7 @@ func (c UserController) Login(ctx *gin.Context) {
 	var body dtos.LoginDto
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"err": err.Error(),
 		})
 		return
@@ -55,7 +55,7 @@ func (c UserController) Login(ctx *gin.Context) {
 	data, err1 := c.userService.Login(body)
 	fmt.Println(data, err1)
 	if err1 != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"err": err1.Error(),
 		})
 		return
@@ -65,10 +65,22 @@ func (c UserController) Login(ctx *gin.Context) {
 }
 
 func (c UserController) Me(ctx *gin.Context) {
+
 	userId, exist := ctx.Get("UserId")
 
 	if !exist {
 		return
 	}
-	fmt.Println(userId, "alo")
+
+	user, err := c.userService.FindById(userId.(uint))
+
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"err": err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"data": user})
+
 }

@@ -57,3 +57,13 @@ func (s UserService) Login(data dtos.LoginDto) (*resources.LoginResource, error)
 
 	return resources.NewLoginResource(user, token), nil
 }
+
+func (s UserService) FindById(id uint) (*resources.UserResource, error) {
+	user, err := s.userRepository.FindById(id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return resources.NewUserResource(user), nil
+}

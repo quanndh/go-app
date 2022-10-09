@@ -38,3 +38,15 @@ func (rp UserRepository) FindByUsername(username string) (*models.User, error) {
 
 	return &user, nil
 }
+
+func (rp UserRepository) FindById(id uint) (*models.User, error) {
+	var user models.User
+
+	res := rp.db.First(&user, id)
+
+	if res.Error != nil {
+		return nil, res.Error
+	}
+
+	return &user, nil
+}

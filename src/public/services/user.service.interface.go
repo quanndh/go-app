@@ -8,4 +8,5 @@ import (
 type IUserService interface {
 	CreateUser(data dtos.SignupDto) (*resources.UserResource, error)
 	Login(data dtos.LoginDto) (*resources.LoginResource, error)
+	FindById(id uint) (*resources.UserResource, error)
 }
