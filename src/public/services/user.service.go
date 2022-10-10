@@ -1,7 +1,9 @@
 package services
 
 import (
+	"github.com/hibiken/asynq"
 	"github.com/quanndh/go-app/adapter/dtos"
+	"github.com/quanndh/go-app/adapter/queues"
 	"github.com/quanndh/go-app/adapter/repositories"
 	"github.com/quanndh/go-app/public/resources"
 	"golang.org/x/crypto/bcrypt"
@@ -12,13 +14,15 @@ type UserService struct {
 	logger         *log.Logger
 	userRepository repositories.IUserRepository
 	JwtService     IJwtService
+	QueueClient    *asynq.Client
 }
 
-func NewUserService(logger *log.Logger, userRepository repositories.IUserRepository, jwtService IJwtService) IUserService {
+func NewUserService(logger *log.Logger, userRepository repositories.IUserRepository, jwtService IJwtService, queueClient *asynq.Client) IUserService {
 	return &UserService{
 		logger:         logger,
 		userRepository: userRepository,
 		JwtService:     jwtService,
+		QueueClient:    queueClient,
 	}
 }
 
@@ -38,7 +42,19 @@ func (s UserService) CreateUser(data dtos.SignupDto) (*resources.UserResource, e
 		return nil, err
 	}
 
-	return resources.NewUserResource(user), err
+	task, err := queues.NewCreatedUserTask(user.ID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = s.QueueClient.Enqueue(task)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return resources.NewUserResource(user), nil
 }
 
 func (s UserService) Login(data dtos.LoginDto) (*resources.LoginResource, error) {

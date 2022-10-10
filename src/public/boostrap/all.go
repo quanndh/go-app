@@ -4,6 +4,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/quanndh/go-app/adapter/db"
 	"github.com/quanndh/go-app/adapter/repositories"
+	"github.com/quanndh/go-app/public/queues"
+
+	"github.com/quanndh/go-app/public/config"
 	"github.com/quanndh/go-app/public/controllers"
 	"github.com/quanndh/go-app/public/router"
 	"github.com/quanndh/go-app/public/services"
@@ -19,9 +22,11 @@ func NewLogger() *log.Logger {
 
 func All() []fx.Option {
 	return []fx.Option{
+		fx.Provide(config.LoadConfig),
 		fx.Provide(NewLogger),
 
 		fx.Provide(db.ConnectDB),
+		fx.Provide(queues.NewQueueClient),
 
 		// Provide port's implements
 		fx.Provide(repositories.NewUserRepository),
@@ -36,7 +41,7 @@ func All() []fx.Option {
 		// when register router was invoked
 		fx.Provide(controllers.NewUserController),
 
-		// Provide gin engine, register core handlers,
+		// Provide gin engine, register core queues,
 		// actuator endpoints and application routers
 		fx.Provide(gin.New),
 		fx.Invoke(router.RegisterGinRouters),

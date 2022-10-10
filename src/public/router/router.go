@@ -2,6 +2,7 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/quanndh/go-app/public/config"
 	"github.com/quanndh/go-app/public/controllers"
 	"github.com/quanndh/go-app/public/middlewares"
 	"github.com/quanndh/go-app/public/services"
@@ -14,6 +15,7 @@ type RegisterRouterIn struct {
 
 	JwtService     services.IJwtService
 	UserController *controllers.UserController
+	Config         *config.Configuration
 }
 
 func RegisterGinRouters(p RegisterRouterIn) {

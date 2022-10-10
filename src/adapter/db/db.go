@@ -1,13 +1,22 @@
 package db
 
 import (
+	"fmt"
 	"github.com/quanndh/go-app/adapter/models"
+	"github.com/quanndh/go-app/public/config"
+	"go.uber.org/fx"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-func ConnectDB() *gorm.DB {
-	dsn := "host=localhost user=postgres password=123456 dbname=go port=5432 sslmode=disable TimeZone=Asia/Shanghai"
+type ConnectDBIn struct {
+	fx.In
+	Config *config.Configuration
+}
+
+func ConnectDB(c ConnectDBIn) *gorm.DB {
+	cfg := c.Config.App.Datasource
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable", cfg.Host, cfg.Username, cfg.Password, cfg.Database, cfg.Port)
 	var err error
 	var db *gorm.DB
 	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
